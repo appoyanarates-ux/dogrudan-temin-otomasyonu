@@ -1,15 +1,15 @@
-import { app, BrowserWindow, dialog } from 'electron';
-import { autoUpdater } from 'electron-updater';
+import * as electron from 'electron';
+const { app, BrowserWindow, dialog } = electron;
+
+import pkg from 'electron-updater';
+const autoUpdater = (pkg as any).autoUpdater || (pkg as any).default?.autoUpdater || pkg;
+
 import path from 'path';
 import { fileURLToPath } from 'url';
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
 
-// Handle creating/removing shortcuts on Windows when installing/uninstalling.
-// electron-squirrel-startup is not needed for NSIS, and causes issues with ESM
-
-
-let mainWindow: BrowserWindow | null = null;
+let mainWindow: electron.BrowserWindow | null = null;
 
 const createWindow = () => {
   mainWindow = new BrowserWindow({
@@ -22,6 +22,8 @@ const createWindow = () => {
     },
   });
 
+  if (!mainWindow) return;
+
   if (!app.isPackaged && process.env['ELECTRON_RENDERER_URL']) {
     mainWindow.loadURL(process.env['ELECTRON_RENDERER_URL']);
     mainWindow.webContents.openDevTools();
@@ -31,37 +33,39 @@ const createWindow = () => {
 };
 
 // Auto-updater configuration
-autoUpdater.autoDownload = false; // Don't download automatically, ask the user first
+if (autoUpdater) {
+  autoUpdater.autoDownload = false;
 
-autoUpdater.on('update-available', () => {
-  dialog.showMessageBox({
-    type: 'info',
-    title: 'Yeni Sürüm Mevcut',
-    message: 'Yeni bir sürüm bulundu. Şimdi indirmek ister misiniz?',
-    buttons: ['Evet', 'Hayır'],
-  }).then((result) => {
-    if (result.response === 0) {
-      autoUpdater.downloadUpdate();
-    }
+  autoUpdater.on('update-available', () => {
+    dialog.showMessageBox({
+      type: 'info',
+      title: 'Yeni Sürüm Mevcut',
+      message: 'Yeni bir sürüm bulundu. Şimdi indirmek ister misiniz?',
+      buttons: ['Evet', 'Hayır'],
+    }).then((result) => {
+      if (result.response === 0) {
+        autoUpdater.downloadUpdate();
+      }
+    });
   });
-});
 
-autoUpdater.on('update-downloaded', () => {
-  dialog.showMessageBox({
-    type: 'info',
-    title: 'Güncelleme Hazır',
-    message: 'Güncelleme indirildi. Uygulamayı şimdi yeniden başlatıp güncellemek ister misiniz?',
-    buttons: ['Evet', 'Sonra'],
-  }).then((result) => {
-    if (result.response === 0) {
-      autoUpdater.quitAndInstall();
-    }
+  autoUpdater.on('update-downloaded', () => {
+    dialog.showMessageBox({
+      type: 'info',
+      title: 'Güncelleme Hazır',
+      message: 'Güncelleme indirildi. Uygulamayı şimdi yeniden başlatıp güncellemek ister misiniz?',
+      buttons: ['Evet', 'Sonra'],
+    }).then((result) => {
+      if (result.response === 0) {
+        autoUpdater.quitAndInstall();
+      }
+    });
   });
-});
+}
 
 app.on('ready', () => {
   createWindow();
-  if (app.isPackaged) {
+  if (app.isPackaged && autoUpdater) {
     autoUpdater.checkForUpdatesAndNotify();
   }
 });

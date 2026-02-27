@@ -1,4 +1,5 @@
-import { app, BrowserWindow } from 'electron';
+import { app, BrowserWindow, dialog } from 'electron';
+import { autoUpdater } from 'electron-updater';
 import path from 'path';
 import { fileURLToPath } from 'url';
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
@@ -23,7 +24,38 @@ const createWindow = () => {
         mainWindow.loadFile(path.join(__dirname, '../dist/index.html'));
     }
 };
-app.on('ready', createWindow);
+// Auto-updater configuration
+autoUpdater.autoDownload = false; // Don't download automatically, ask the user first
+autoUpdater.on('update-available', () => {
+    dialog.showMessageBox({
+        type: 'info',
+        title: 'Yeni Sürüm Mevcut',
+        message: 'Yeni bir sürüm bulundu. Şimdi indirmek ister misiniz?',
+        buttons: ['Evet', 'Hayır'],
+    }).then((result) => {
+        if (result.response === 0) {
+            autoUpdater.downloadUpdate();
+        }
+    });
+});
+autoUpdater.on('update-downloaded', () => {
+    dialog.showMessageBox({
+        type: 'info',
+        title: 'Güncelleme Hazır',
+        message: 'Güncelleme indirildi. Uygulamayı şimdi yeniden başlatıp güncellemek ister misiniz?',
+        buttons: ['Evet', 'Sonra'],
+    }).then((result) => {
+        if (result.response === 0) {
+            autoUpdater.quitAndInstall();
+        }
+    });
+});
+app.on('ready', () => {
+    createWindow();
+    if (app.isPackaged) {
+        autoUpdater.checkForUpdatesAndNotify();
+    }
+});
 app.on('window-all-closed', () => {
     if (process.platform !== 'darwin') {
         app.quit();

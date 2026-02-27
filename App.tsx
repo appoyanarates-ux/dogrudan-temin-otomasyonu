@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import Layout from './components/Layout';
 import Dashboard from './pages/Dashboard';
 import DataEntry from './pages/DataEntry';
@@ -21,6 +21,19 @@ const AppContent: React.FC = () => {
   const { activeProjectId, notification, hideNotification } = useProcurement();
   const [activeTab, setActiveTab] = useState('dashboard');
   const [activeDoc, setActiveDoc] = useState<DocumentType>('onay_belgesi');
+
+  const [updateInfo, setUpdateInfo] = useState<{ progress: number, show: boolean }>({ progress: 0, show: false });
+
+  useEffect(() => {
+    if (window.electron?.onDownloadProgress) {
+      window.electron.onDownloadProgress((progressObj: any) => {
+        setUpdateInfo({
+          progress: progressObj.percent || 0,
+          show: true
+        });
+      });
+    }
+  }, []);
 
   // If no project is selected, show the Project List (Home)
   if (!activeProjectId) {
@@ -68,8 +81,8 @@ const AppContent: React.FC = () => {
       {/* Global Notification */}
       {notification.show && (
         <div className={`fixed top-6 right-6 z-[9999] min-w-[320px] max-w-md p-4 rounded-xl shadow-2xl border flex items-start animate-in fade-in slide-in-from-top-4 duration-300 ${notification.type === 'success' ? 'bg-green-50 border-green-200 text-green-800' :
-            notification.type === 'error' ? 'bg-red-50 border-red-200 text-red-800' :
-              'bg-blue-50 border-blue-200 text-blue-800'
+          notification.type === 'error' ? 'bg-red-50 border-red-200 text-red-800' :
+            'bg-blue-50 border-blue-200 text-blue-800'
           }`}>
           <div className="mr-3 mt-0.5">
             {notification.type === 'success' && <CheckCircle className="text-green-600" size={20} />}
@@ -83,6 +96,46 @@ const AppContent: React.FC = () => {
           <button onClick={hideNotification} className="ml-3 p-1 hover:bg-black/5 rounded-lg transition-colors">
             <X size={16} className="opacity-50 hover:opacity-100" />
           </button>
+        </div>
+      )}
+
+      {/* Update Progress Overlay */}
+      {updateInfo.show && updateInfo.progress < 100 && (
+        <div className="fixed bottom-6 right-6 z-[9999] w-80 bg-white dark:bg-gray-800 rounded-xl shadow-2xl border border-blue-100 p-5 animate-in slide-in-from-bottom-5">
+          <div className="flex items-center gap-3 mb-3">
+            <div className="p-2 bg-blue-50 text-blue-600 rounded-lg">
+              <InfoIcon size={20} />
+            </div>
+            <div>
+              <h4 className="font-semibold text-gray-900 text-sm">Güncelleme İndiriliyor</h4>
+              <p className="text-xs text-gray-500">Lütfen programı kapatmayın...</p>
+            </div>
+          </div>
+
+          <div className="w-full bg-gray-100 rounded-full h-2.5 overflow-hidden">
+            <div
+              className="bg-blue-600 h-2.5 rounded-full transition-all duration-300 ease-out"
+              style={{ width: `${Math.round(updateInfo.progress)}%` }}
+            ></div>
+          </div>
+
+          <div className="mt-2 text-right">
+            <span className="text-xs font-bold text-blue-600">
+              %{Math.round(updateInfo.progress)}
+            </span>
+          </div>
+        </div>
+      )}
+
+      {updateInfo.show && updateInfo.progress >= 100 && (
+        <div className="fixed bottom-6 right-6 z-[9999] w-80 bg-green-50 rounded-xl shadow-2xl border border-green-200 p-4 animate-in slide-in-from-bottom-5">
+          <div className="flex items-center gap-3">
+            <CheckCircle className="text-green-600" size={24} />
+            <div>
+              <h4 className="font-bold text-green-800 text-sm">İndirme Tamamlandı!</h4>
+              <p className="text-xs text-green-700 mt-0.5">Yeniden başlatmanız bekleniyor...</p>
+            </div>
+          </div>
         </div>
       )}
     </div>

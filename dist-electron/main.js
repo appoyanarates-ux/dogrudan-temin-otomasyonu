@@ -41,6 +41,11 @@ if (autoUpdater) {
             }
         });
     });
+    autoUpdater.on('download-progress', (progressObj) => {
+        if (mainWindow) {
+            mainWindow.webContents.send('download-progress', progressObj);
+        }
+    });
     autoUpdater.on('update-downloaded', () => {
         dialog.showMessageBox({
             type: 'info',

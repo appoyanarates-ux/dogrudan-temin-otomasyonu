@@ -1,9 +1,21 @@
-
 export interface Official {
   title: string;
   name: string;
   role: string; // e.g., "Okul Müdürü", "Müdür Yardımcısı"
 }
+
+declare global {
+  interface Window {
+    electron: {
+      ipcRenderer: {
+        send: (channel: string, data: any) => void;
+        on: (channel: string, func: (...args: any[]) => void) => void;
+      };
+      onDownloadProgress: (callback: (progress: any) => void) => void;
+    };
+  }
+}
+
 
 export interface Institution {
   name: string;
@@ -62,7 +74,7 @@ export interface ProcurementState {
   institution: Institution;
   spendingOfficial: Official; // Harcama Yetkilisi
   realizationOfficial: Official; // Gerçekleştirme Görevlisi
-  
+
   // Komisyonlar
   approxCostCommission: CommissionMember[]; // Yaklaşık Maliyet Komisyonu
   marketResearchCommission: CommissionMember[]; // Piyasa Araştırma Komisyonu
@@ -70,7 +82,7 @@ export interface ProcurementState {
 
   items: Item[];
   suppliers: Supplier[];
-  
+
   offers: Offer[]; // Kesin Teklifler (İhale Sonucu)
   marketResearchOffers: Offer[]; // Piyasa Araştırması Fiyatları (Yaklaşık Maliyet için)
 
@@ -78,7 +90,7 @@ export interface ProcurementState {
   directProcurementArticle: '22/d' | '22/a'; // Madde türü
   date: string; // Genel İşlem tarihi (Fallback)
   tenderNumber: string; // İhale/Dosya No
-  
+
   // Bütçe ve Ödenek
   allowance: number; // Kullanılabilir Ödenek
   budgetCode: string; // Bütçe Tertibi
@@ -90,12 +102,12 @@ export interface ProcurementState {
   // AI & Config
   apiKey: string;
   technicalSpecificationContent: string;
-  
+
   // New Fields
   jobDescription: string; // Yapılan İş/Mal/Hizmetin Adı
 }
 
-export type DocumentType = 
+export type DocumentType =
   | 'ihtiyac_listesi'     // 1
   | 'komisyon_onay'       // 2
   | 'fiyat_arastirma'     // 3 (New)

@@ -1,0 +1,64 @@
+<!DOCTYPE html>
+<html lang="tr">
+
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Doğrudan Temin Otomasyonu</title>
+  <style>
+    @media print {
+      .no-print {
+        display: none !important;
+      }
+
+      .print-only {
+        display: block !important;
+      }
+
+      body,
+      html {
+        background: white;
+        -webkit-print-color-adjust: exact;
+      }
+
+      /* Standart A4 Güvenli Bölge */
+      @page {
+        size: A4;
+        margin: 10mm;
+      }
+
+      /* İçeriklerin bölünmesini engelle */
+      .page-break {
+        page-break-before: always;
+      }
+
+      .avoid-break {
+        break-inside: avoid;
+        page-break-inside: avoid;
+      }
+
+      tr {
+        page-break-inside: avoid;
+        break-inside: avoid;
+      }
+
+      /* Tablo hücrelerinin taşmasını engelle */
+      td,
+      th {
+        word-wrap: break-word;
+        overflow-wrap: break-word;
+      }
+    }
+
+    .print-only {
+      display: none;
+    }
+  </style>
+</head>
+
+<body class="bg-slate-50 text-slate-900 font-sans antialiased">
+  <div id="root"></div>
+  <script type="module" src="./index.tsx"></script>
+</body>
+
+</html>

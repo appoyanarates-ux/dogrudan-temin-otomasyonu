@@ -1,0 +1,58 @@
+@import "tailwindcss";
+
+@theme {
+  --color-gov-50: #f0f9ff;
+  --color-gov-100: #e0f2fe;
+  --color-gov-600: #0284c7;
+  --color-gov-800: #075985;
+  --color-gov-900: #0c4a6e;
+  --color-gov-950: #082f49;
+}
+
+@media print {
+  .no-print {
+    display: none !important;
+  }
+
+  .print-only {
+    display: block !important;
+  }
+
+  body,
+  html {
+    background: white;
+    -webkit-print-color-adjust: exact;
+  }
+
+  /* Standart A4 Güvenli Bölge */
+  @page {
+    size: A4;
+    margin: 10mm;
+  }
+
+  /* İçeriklerin bölünmesini engelle */
+  .page-break {
+    page-break-before: always;
+  }
+
+  .avoid-break {
+    break-inside: avoid;
+    page-break-inside: avoid;
+  }
+
+  tr {
+    page-break-inside: avoid;
+    break-inside: avoid;
+  }
+
+  /* Tablo hücrelerinin taşmasını engelle */
+  td,
+  th {
+    word-wrap: break-word;
+    overflow-wrap: break-word;
+  }
+}
+
+.print-only {
+  display: none;
+}

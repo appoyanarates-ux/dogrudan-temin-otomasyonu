@@ -22,6 +22,7 @@
   html {
     background: white;
     -webkit-print-color-adjust: exact;
+    print-color-adjust: exact;
   }
 
   /* Standart A4 Güvenli Bölge */

@@ -1,5 +1,5 @@
 import * as electron from 'electron';
-const { app, BrowserWindow, dialog } = electron;
+const { app, BrowserWindow, dialog, Menu } = electron;
 
 import pkg from 'electron-updater';
 const autoUpdater = (pkg as any).autoUpdater || (pkg as any).default?.autoUpdater || pkg;
@@ -23,6 +23,10 @@ const createWindow = () => {
   });
 
   if (!mainWindow) return;
+
+  // Menü çubuğunu kaldırır
+  Menu.setApplicationMenu(null);
+  mainWindow.setMenuBarVisibility(false);
 
   if (!app.isPackaged && process.env['ELECTRON_RENDERER_URL']) {
     mainWindow.loadURL(process.env['ELECTRON_RENDERER_URL']);
